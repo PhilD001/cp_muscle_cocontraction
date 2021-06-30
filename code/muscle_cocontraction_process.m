@@ -140,7 +140,7 @@ evtn2 = 'RFS2';                                                              % e
 bmech_partition(fld,evtn1,evtn2);                                                         % run function
 
 
-%% step-10: Normalize
+%% step-10: Normalize EMG
 mode = 'manual';
 if strfind(mode,'manual')
     fld = uigetfolder('select ''5-partition''');

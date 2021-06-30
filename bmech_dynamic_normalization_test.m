@@ -25,7 +25,7 @@ fl_all = engine('path',fld,'extension','zoo');
 fl_tmp = engine('path',fld,'extension','zoo','search file','Cal');
 fl = setdiff(fl_all,fl_tmp);
 
-%% Estimating local max for each EMG channel
+% Estimating local max for each EMG channel
 local_max_all_trial =struct();
 
 for i = 1:length(fl)
@@ -40,13 +40,13 @@ for i = 1:length(fl)
         [data,local_max_all_trial.(subject_id{1,1})] = max_of_data(data,ch,local_max_all_trial.(subject_id{1,1}));
     else
         local_max_all_trial.(subject_id{1,1}) = struct();
-        [data,local_max_all_trial.(subject_id{1,1})] = max_of_data(data,ch,local_max_all_trial.(subject_id{1,1}))
+        [data,local_max_all_trial.(subject_id{1,1})] = max_of_data(data,ch,local_max_all_trial.(subject_id{1,1}));
     end
     
     zsave(fl{i},data);
 end
 
-%% Estimating global max for a channel from all the trials of a subject
+% Estimating global max for a channel from all the trials of a subject
 global_max = struct();
 subject_id_all =fieldnames(local_max_all_trial);
 
@@ -58,7 +58,7 @@ for i=1: length(subject_id_all)
     end
 end
 
-%% Dynamic Normalization
+% Dynamic Normalization
 for i = 1:length(fl)
     batchdisp(fl{i},'emg dynamic normailization process')
     data2 = zload(fl{i});
@@ -73,15 +73,15 @@ for i = 1:length(fl)
         max_val = global_max.(subject_id{1,1}).(local_ch_name);
         norm_r = r/ max_val;                                                                             % normalizing by global max
         data2 = addchannel_data(data2,[ch{j},'_normalized'],norm_r,'Analog');
-        data2.(strcat(ch{j},'_normalized')).event.global_max= max_val;
+        data2.(strcat(ch{j},'_normalized')).event.global_max = [1, max_val, 0];
     end
     zsave(fl{i},data2);
 end
 
-end
 
 
 function [data,max_all] = max_of_data(data,emg_ch,max_all)
+
 for i = 1:length(emg_ch)
     
     local_ch_name = [emg_ch{i} '_rect_RMS'];
@@ -99,5 +99,4 @@ for i = 1:length(emg_ch)
     
     data = addevent_data(data,{local_ch_name},'local_max','max'); % adds max to each *_rect_RMS emg channel
     
-end
 end
