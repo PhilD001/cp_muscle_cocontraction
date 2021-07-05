@@ -37,10 +37,10 @@ for i = 1:length(fl)
     subject_id  = extractBetween(file_name,before_str,after_str);
     
     if any(strcmp(fieldnames(local_max_all_trial),subject_id{1,1}))
-        [data,local_max_all_trial.(subject_id{1,1})] = max_of_data(data,ch,local_max_all_trial.(subject_id{1,1}));
+        [data,local_max_all_trial.(['sub_' subject_id{1,1}])] = max_of_data(data,ch,local_max_all_trial.(['sub_' subject_id{1,1}]));
     else
-        local_max_all_trial.(subject_id{1,1}) = struct();
-        [data,local_max_all_trial.(subject_id{1,1})] = max_of_data(data,ch,local_max_all_trial.(subject_id{1,1}));
+        local_max_all_trial.(['sub_' subject_id{1,1}]) = struct();
+        [data,local_max_all_trial.(['sub_' subject_id{1,1}])] = max_of_data(data,ch,local_max_all_trial.(['sub_' subject_id{1,1}]));
     end
     
     zsave(fl{i},data);
@@ -70,7 +70,7 @@ for i = 1:length(fl)
     for j = 1:length(ch)
         local_ch_name =[ch{j} '_rect_RMS'];
         r = data2.(local_ch_name).line;
-        max_val = global_max.(subject_id{1,1}).(local_ch_name);
+        max_val = global_max.(['sub_' subject_id{1,1}]).(local_ch_name);
         norm_r = r/ max_val;                                                                             % normalizing by global max
         data2 = addchannel_data(data2,[ch{j},'_normalized'],norm_r,'Analog');
         data2.(strcat(ch{j},'_normalized')).event.global_max = [1, max_val, 0];
