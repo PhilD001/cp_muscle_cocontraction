@@ -12,56 +12,59 @@ delfile(fl_gs);
 delfile(fl_gl);
 delfile(fl_st);
 
-%% Step-2 delete folder with no mft sheet
-
+%% Step-2 Convert to the Zoo format
 mode = 'manual';
 if strfind(mode,'manual')
-    fld = uigetfolder('select ''2-delete-no-mft''');
-end
-
-[~,subjects] = extract_filestruct(fld);
-for i = 1:length(subjects)
-    fl = engine('fld',fld, 'search path', subjects{i},'extension','csv');             % chek for only csv files
-    if isempty(fl)                                                                    % if no csv file = no mft file
-        bmech_removefolder(fld,subjects{i});
-        disp(['removing subject ', subjects{i},' because he has no mft sheet'])           % remove subject because not enough info
-    else
-        disp(['keepoing subject ', subjects{i},' mft sheet found...'])           % remove subject because not enough info
-
-    end
-end
-
-%% Step-3 Convert to the Zoo format
-mode = 'manual';
-if strfind(mode,'manual')
-    fld = uigetfolder('select ''3-c3d2zoo''');
+    fld = uigetfolder('select ''2-c3d2zoo''');
 end
 %  del='yes';
 c3d2zoo(fld,'yes');
 
-%% STEP-4 extract Anthro data of participants
+%% STEP-3 extract Anthro data of participants
 
 mode = 'manual';
 if strfind(mode,'manual')
-    fld = uigetfolder('select ''4-ectract-age''');
+    fld = uigetfolder('select ''3-exctract-Anthro''');
 end
 % extract age
 bmech_extract_in_mft(fld,'Age');
-
+% extract cp type
 bmech_extract_in_mft(fld,'GMFCS');
-%% step-5 REMOVE ADULTS (-18 YEARS OLD)
+
+%% step 4: remove empty folders
+mode = 'manual';
+if strfind(mode,'manual')
+    fld = uigetfolder('select ''4-remove-empty''');
+end
+[~,subjects] = extract_filestruct(fld);
+for i = 1:length(subjects)
+    fl = engine('fld',fld, 'search path', subjects{i}, 'extension','zoo'); 
+    if isempty(fl)                                                         
+    bmech_removefolder(fld,subjects{i});
+    disp(['removing subject ', subjects{i},' because he has no files'])
+    end
+end
+
+%% step-5 remove ADULTS (-18 YEARS OLD)
 
 mode = 'manual';
 if strfind(mode,'manual')
-    fld = uigetfolder('select ''5-remove_adults''');
+    fld = uigetfolder('select ''5-remove-adults''');
 end
 
 bmech_remove_by_anthro(fld,'Age',18,'>=');
 
+%%step 6: remove empty GMFCS score
+mode = 'manual';
+if strfind(mode,'manual')
+    fld = uigetfolder('select ''6-no-GMFCS''');
+end
+bmech_remove_by_anthro(fld,'GMFCS',0,'=');
+
 %% STEP-7: clean channels
 mode = 'manual';
 if strfind(mode,'manual')
-    fld = uigetfolder('select ''6-clean-channels''');
+    fld = uigetfolder('select ''7-clean-channels''');
 end
 
 ch={'LAnklePower','RAnklePower','LKneePower','RKneePower','LHipPower',...
@@ -97,8 +100,7 @@ for i = 1:length(fl)
     end
 
 end
-% We removed manually file because they became empty: 1. Aschau_NORM\32_1
-                                                   %  2. Aschau_cp\2044_2
+% only one trial was removed
     
  %% step9- rename emg channels
  mode = 'manual';
@@ -111,43 +113,38 @@ och={'VoltageLVM';'VoltageLTibAnt';'VoltageLGM';'VoltageLHam';'VoltageLRF';'Volt
 nch={'LVM';'LTibAnt';'LGM';'LHam';'LRF';'LGLUTMED';'RVM';'RTibAnt';'RGM';'RHam';'RRF';'RGLUTMED',};
  
  bmech_renamechannel(fld,och,nch);
-  
- %% step-10: process emg signal
+ %% step-10: remove files with missing channels
 mode = 'manual';
 if strfind(mode,'manual')
-    fld = uigetfolder('select''10-process-emg''');
+    fld = uigetfolder('select ''10-remove_missing_channel''');
 end
 
-ch={'LVM';'LTibAnt';'LGM';'LHam';'LRF';'LGLUTMED';'RVM';'RTibAnt';'RGM';'RHam';'RRF';'RGLUTMED',};
+% Channels to check: required emg channels & SACR for addevenet step
+chns = {'SACR';'LVM';'LTibAnt';'LGM';'LHam';'LRF';'RVM';'RTibAnt';'RGM';'RHam';'RRF'};
+
+bmech_remove_files_missing_channels(fld, chns);  % 11 files was removed with this function
+  
+ %% step-11: process emg signal
+mode = 'manual';
+if strfind(mode,'manual')
+    fld = uigetfolder('select''11-process-emg''');
+end
+
+ch={'LVM';'LTibAnt';'LGM';'LHam';'LRF';'RVM';'RTibAnt';'RGM';'RHam';'RRF'};
 
 bmech_emgprocess_test(fld,ch,450);
 
 
-%% step-11: Normalize
+%% step-12:dynamic Normalize
 mode = 'manual';
 if strfind(mode,'manual')
-    fld = uigetfolder('select ''11-normalize''');
+    fld = uigetfolder('select ''12-dynamic-normalize''');
 end
-ch={'LVM';'LTibAnt';'LGM';'LHam';'LRF';'LGLUTMED';'RVM';'RTibAnt';'RGM';'RHam';'RRF';'RGLUTMED',};
+ch={'LVM';'LTibAnt';'LGM';'LHam';'LRF';'RVM';'RTibAnt';'RGM';'RHam';'RRF'};
 before_str= '';
 after_str='_g';
 
 bmech_dynamic_normalization_test(fld,ch,before_str,after_str);
-
-
-%% step-6: remove files with missing channels
-
-% added this section because of error in addevent section
-mode = 'manual';
-if strfind(mode,'manual')
-    fld = uigetfolder('select ''12-remove_missing_channel''');
-end
-
-% chns  ... cell array of strings. Channels to check
-chns = {'SACR'};
-
-bmech_remove_files_missing_channels(fld, chns);  % 11 files was removed with this function
-
 
 %% step-13 explode data
 mode = 'manual';
@@ -173,25 +170,26 @@ bmech_addevent(fld, 'SACR_x','LFS', 'LFS')
              % 5. Aschau_CP\2190_1\2190_1_g_23.zoo
              % 6. Aschau_CP\2235_1\2235_1_g_09.zoo
              % 7. Aschau_NORM\10_1\128_1_g_05.zoo
+             % 8. Aschau_CP\4136_1\4136_1_g_01.zoo
 %% step-15-1 choose correct side
 % check  trials (from step 14) for the total number of missing left side
 
 mode = 'manual';
 if strfind(mode,'manual')
-    fld = uigetfolder('select ''15-choose-side-L''');
+    fld = uigetfolder('select ''15-side-L''');
 end
  
-bmech_choose_side_L(fld); % total trials missing LFS2 349
+bmech_choose_side_L(fld); % total trials missing LFS2: 351
 
 
 %% step-15-2 choose correct side
 % check  trials (from step 14) for the total number of missing right side
 mode = 'manual';
 if strfind(mode,'manual')
-    fld = uigetfolder('select ''15-choose-side-R''');
+    fld = uigetfolder('select ''15-side-R''');
 end
  
-bmech_choose_side_R(fld); % total trials missing RFS2 319
+bmech_choose_side_R(fld); % total trials missing RFS2: 365
 
 
 %% step-16: Partition the data
@@ -199,37 +197,32 @@ mode = 'manual';
 if strfind(mode,'manual')
     fld = uigetfolder('select ''16-partition''');
 end
-% based on two previous steps: selected side ---> Right
+% based on two previous steps: selected side ---> Left
 % copy files from step 14
 
-evtn1 = 'RFS1';          % start name
-evtn2 = 'RFS2';          % end name
+evtn1 = 'LFS1';          % start name
+evtn2 = 'LFS2';          % end name
 bmech_partition(fld,evtn1,evtn2); 
 
 %% step-17: time_normalize
 mode = 'manual';
 if strfind(mode,'manual')
-    fld = uigetfolder('select ''17-time_normalize''');
+    fld = uigetfolder('select ''17-time-normalize''');
 end
 
 bmech_normalize(fld);
 % removed files:Aschau_CP\2524_1\2524_1_g_27.zoo
                %Aschau_CP\2524_1\2524_1_g_31.zoo
                %Aschau_CP\2671_1\2671_1_g_11.zoo
-              % Aschau_NORM\23_1\23_1_g_02.zoo
-%% STEP-18 extract cp type
-mode = 'manual';
-if strfind(mode,'manual')
-    fld = uigetfolder('select ''4-ectract-age''');
-end
-% use file for step 17
-bmech_extract_in_mft(fld,'GMFCS');
+               % Aschau_NORM\23_1\23_1_g_02.zoo
+               % Aschau_NORM\23_1\23_1_g_04.zoo
+
 
 %% step:  plot to find bad emg signals
 
 mode = 'manual';
 if strfind(mode,'manual')
-    fld = uigetfolder('select ''??''');
+    fld = uigetfolder('select ''17-time-normalize''');
 end
 
 bmech_find_good_emg(fld);  %run this function for every folder of cp and norm
@@ -240,7 +233,7 @@ bmech_find_good_emg(fld);  %run this function for every folder of cp and norm
 
 mode = 'manual';
 if strfind(mode,'manual')
-    fld = uigetfolder('select ''16-cocontraction''');
+    fld = uigetfolder('select ''18-cocontraction''');
 end
 pairs={'VM_Ham','GM_TibAnt'};
 
