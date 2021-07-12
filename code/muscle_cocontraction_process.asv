@@ -30,6 +30,8 @@ end
 bmech_extract_in_mft(fld,'Age');
 % extract cp type
 bmech_extract_in_mft(fld,'GMFCS');
+% extract gender 
+bmech_extract_in_mft(fld,'Sex');   %(1=M, 2=F)
 
 %% step 4: remove empty folders
 mode = 'manual';
@@ -165,12 +167,10 @@ bmech_addevent(fld, 'SACR_x','LFS', 'LFS')
 % In this step before runing function we removed this trials to run the function: 
              % 1. Aschau_CP\2337_1\2337_1_g_15.zoo
              % 2. Aschau_NORM\56_5\56_5_g_07.zoo
-             % 3. Aschau_CP\1807_1\1807_1_g_11.zoo
-             % 4. Aschau_CP\1989_1\1989_1_g_03.zoo
-             % 5. Aschau_CP\2190_1\2190_1_g_23.zoo
-             % 6. Aschau_CP\2235_1\2235_1_g_09.zoo
-             % 7. Aschau_NORM\10_1\128_1_g_05.zoo
-             % 8. Aschau_CP\4136_1\4136_1_g_01.zoo
+             % 3. Aschau_CP\1989_1\1989_1_g_03.zoo
+             % 4. Aschau_CP\2190_1\2190_1_g_23.zoo
+             % 5. Aschau_CP\2235_1\2235_1_g_09.zoo
+             % 6. Aschau_CP\4136_1\4136_1_g_01.zoo
 %% step-15-1 choose correct side
 % check  trials (from step 14) for the total number of missing left side
 
@@ -179,7 +179,7 @@ if strfind(mode,'manual')
     fld = uigetfolder('select ''15-side-L''');
 end
  
-bmech_choose_side_L(fld); % total trials missing LFS2: 351
+bmech_choose_side_L(fld); % total trials missing LFS2: 170
 
 
 %% step-15-2 choose correct side
@@ -189,50 +189,60 @@ if strfind(mode,'manual')
     fld = uigetfolder('select ''15-side-R''');
 end
  
-bmech_choose_side_R(fld); % total trials missing RFS2: 365
+bmech_choose_side_R(fld); % total trials missing RFS2: 177
 
-
-%% step-16: Partition the data
+%% step16: resample analog channels
 mode = 'manual';
 if strfind(mode,'manual')
-    fld = uigetfolder('select ''16-partition''');
+    fld = uigetfolder('select ''16-resample''');
+end
+
+bmech_resample(fld,'Video')
+% Aschau_CP\1989_1\1989_1_g_01.zoo
+% Aschau_CP\2513_1\2513_1_g_24.zoo
+% Aschau_CP\2524_1\2524_1_g_27.zoo
+% Aschau_CP\2524_1\2524_1_g_28.zoo
+% Aschau_CP\3158_1\3158_1_g_07.zoo
+% Aschau_CP\3249_1\3249_1_g_06.zoo
+% Aschau_CP\3249_1\3249_1_g_09.zoo
+% Aschau_CP\3249_1\3249_1_g_10.zoo
+% Aschau_CP\3249_1\3249_1_g_11.zoo
+% Aschau_CP\3249_1\3249_1_g_12.zoo
+% Aschau_CP\3249_1\3249_1_g_13.zoo
+% Aschau_CP\3249_1\3249_1_g_14.zoo
+% Aschau_CP\3339_1\3339_1_g_09.zoo
+
+
+%% step-17: Partition the data
+mode = 'manual';
+if strfind(mode,'manual')
+    fld = uigetfolder('select ''17-partition''');
 end
 % based on two previous steps: selected side ---> Left
 % copy files from step 14
 
-evtn1 = 'RFS1';          % start name
-evtn2 = 'RFS2';          % end name
+evtn1 = 'LFS1';          % start name
+evtn2 = 'LFS2';          % end name
 bmech_partition(fld,evtn1,evtn2); 
 
-%% step-17: time_normalize
+%% step-18: time_normalize
 mode = 'manual';
 if strfind(mode,'manual')
-    fld = uigetfolder('select ''17-time-normalize''');
+    fld = uigetfolder('select ''18-time-normalize''');
 end
 
 bmech_normalize(fld);
 % removed files:Aschau_CP\2524_1\2524_1_g_27.zoo
                %Aschau_CP\2524_1\2524_1_g_31.zoo
-               %Aschau_CP\2671_1\2671_1_g_11.zoo
-              % Aschau_NORM\23_1\23_1_g_02.zoo
-
-
-%% step:  plot to find bad emg signals
-
-mode = 'manual';
-if strfind(mode,'manual')
-    fld = uigetfolder('select ''17-time-normalize''');
-end
-
-bmech_find_good_emg(fld);  %run this function for every folder of cp and norm
-
-%coment for bad signals: in excel sheet
+               
+% Aftre this step subjects with bad Hams and RF were removed               
+% Then they were graphed on ensembler
 
 %% step-16: compute muscle co-contraction
 
 mode = 'manual';
 if strfind(mode,'manual')
-    fld = uigetfolder('select ''16-cocontraction''');
+    fld = uigetfolder('select ''18-cocontraction''');
 end
 pairs={'VM_Ham','GM_TibAnt'};
 
