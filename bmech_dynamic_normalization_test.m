@@ -36,7 +36,7 @@ for i = 1:length(fl)
     file_name =fl_path(end);
     subject_id  = extractBetween(file_name,before_str,after_str);
     
-    if any(strcmp(fieldnames(local_max_all_trial),subject_id{1,1}))
+    if any(strcmp(fieldnames(local_max_all_trial),['sub_' subject_id{1,1}]))
         [data,local_max_all_trial.(['sub_' subject_id{1,1}])] = max_of_data(data,ch,local_max_all_trial.(['sub_' subject_id{1,1}]));
     else
         local_max_all_trial.(['sub_' subject_id{1,1}]) = struct();
