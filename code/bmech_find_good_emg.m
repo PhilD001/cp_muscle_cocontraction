@@ -16,7 +16,7 @@ s4=subplot(2,6,4);
 
 for i=1:length(fl)
 data = zload(fl{i});
-fl{i};
+fl{i}
 data2.(['T' num2str(i)])=data;
  
 

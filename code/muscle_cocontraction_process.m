@@ -180,6 +180,8 @@ if strfind(mode,'manual')
 end
  
 bmech_choose_side_L(fld); % total trials missing LFS2: 170
+                          % for the oxford cp : 49
+                          % for the oxford TD : 96
 
 
 %% step-15-2 choose correct side
@@ -190,6 +192,8 @@ if strfind(mode,'manual')
 end
  
 bmech_choose_side_R(fld); % total trials missing RFS2: 177
+                          % for the oxford cp : 49
+                          % for the oxford TD : 96
 
 %% step16: resample analog channels
 mode = 'manual';
