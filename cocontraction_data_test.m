@@ -53,7 +53,7 @@ for i = 1:length(muscle_pairs)
             [r,r_val] = cocontraction_line_test(muscle1,muscle2,method);
             data = addchannel_data(data,[sides{j},muscles{1},'_',muscles{2}],r,'Analog');
             if r_val~=0
-                data.([sides{j},muscles{1},'_',muscles{2}]).event.co_contraction_value_entire_gait= r_val;
+                data.([sides{j},muscles{1},'_',muscles{2}]).event.co_contraction_value= [1,r_val,0];
             end
         else
             disp(['computing co-contraction for muscles ',sides{j},muscles{1},' and ',sides{j},muscles{2},' using Default:Rudolph'])
