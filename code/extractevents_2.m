@@ -24,32 +24,29 @@ end
 r = struct;
 s = filesep;                                                    % determines slash direction
 file= {};
+
 for i = 1:length(cons)
     estk={};
+    file =   engine('path',[fld,s,cons{i},s],'extension','zoo');
     
-    for j = 1:length(subjects)
+    for j = 1:length(file)
         % disp(['loading files for ',subjects{j},' ',cons{i}])
-        file =   engine('path',[fld,s,cons{i},s,subjects{j}],'extension','zoo');
-        for k=1:length(file)
-            if ~isempty(file)
-                data = zload(file{k});                              % load zoo file
-                evtval = findfield(data.(ch),evt);                  % searches for local event
-                
-                if isempty(evtval)                                  % searches for global event
-                    evtval = findfield(data,evt);                   % if local event is not
-                    evtval(2) = data.(ch).line(evtval(1));          % found
-                end
-                
-                if evtval(2)==999                                   % check for outlier
-                    evtval(2) = NaN;
-                end
-%                 filename=extractBetween(file{k},[subjects{j},'\'],'.zoo');
-%                 estk(k,1) = filename;                                % add to event stk
-%                 estk(k,2) = {evtval};
+        
+        if ~isempty(file)
+            data = zload(file{j});                              % load zoo file
+            evtval = findfield(data.(ch),evt);                  % searches for local event
+            
+            if isempty(evtval)                                  % searches for global event
+                evtval = findfield(data,evt);                   % if local event is not
+                evtval(2) = data.(ch).line(evtval(1));          % found
             end
-            filename=extractBetween(file{k},[subjects{j},'\'],'.zoo');
-                estk(k,1) = filename;                                % add to event stk
-                estk(k,2) = {evtval};
+            
+            if evtval(2)==999                                   % check for outlier
+                evtval(2) = NaN;
+            end
+            filename=extractBetween(file{j},[cons{i},'\'],'.zoo');
+            estk(j,1) = filename;                                % add to event stk
+            estk(j,2) = {evtval};
         end
         
     end
