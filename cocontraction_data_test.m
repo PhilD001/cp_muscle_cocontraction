@@ -65,7 +65,7 @@ switch n
                 end
                 
             else
-                disp('events 2 not provided: Ignoring event(s) and considering complete signal')
+                disp('event 2 not provided: Ignoring event(s) and considering complete signal')
                 events_exists =false;
             end
         end
@@ -104,7 +104,7 @@ switch n
             end
             
         else
-            disp('events 2 not provided: Ignoring event(s) and considering complete signal')
+            disp('event 2 not provided: Ignoring event(s) and considering complete signal')
             events_exists =false;
         end
         
