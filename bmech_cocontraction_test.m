@@ -3,18 +3,22 @@ function bmech_cocontraction_test(fld,pairs,varargin)
 % BMECH_COCONTRACTION computes co-contraction index for muscle pairs
 %
 % ARGUMENTS
-%  fld         ...   folder to operate on
-%  pairs       ...   Names of muscle pairs (cell array of strings).
-%                      Prefix side L or R at begining of string input.
-%                      Example = {'LTibAnt_GM','LRF_Ham'} computes
-%                      co-contaction for LTibAnt and LGM, and LRF
-%                      and LHam muscle pairs.
+%  fld         ...          folder to operate on
+%  pairs         ...          Names of muscle pairs (cell array of strings seperated by '-').
+%                               Example = {'L_TibAnt-L_GM','L_RF-L_Ham'} computes
+%                               co-contaction for L_TibAnt and L_GM, and L_RF
+%                               and L_Ham muscle pairs.
+%
 %*NEW* OPTIONAL AGRUMENT
-%  'method'         ...   Choice of algorithm to use.
-%                       Default :'Rudolph'
-%                       Other choices :'Falconer' and 'Lo2017'.
-% 'events'   ...   pair of global events as cell array of strings.
-%                 Exampl = {'Left_FootStrike1','Left_FootStrike2'}
+% 'method'  ...         Choice of algorithm to use.
+%                               Default :'Rudolph'
+%                               Other choices :'Falconer' and 'Lo2017'.
+% 'events'   ...           pair of global events as cell array of strings (only for Lo2017 method). 
+%                               Estimates  percent co-contraction btw the events (value stored in event). 
+%                               Note:                                                            
+%                               Ignores events for other methods and computes co-contation line for entire data
+%                               Example = {'Left_FootStrike1','Left_FootStrike2'}
+%
 % NOTES
 % - See cocontraction_line for co-contraction computational approach
 %
@@ -29,21 +33,13 @@ method_exists = false;
 events_exists = false;
 evts ={''};
 
-sides = {};
-for i=1: length(pairs)
-    side = pairs{1,i}(1);
-    sides{1,i} =side;
-    
-    pairs{1,i} = pairs{1,i}(2:end);
-end
-sides = unique(sides);
 
 if nargin <2
     error('Check Input')
 elseif nargin ==3
     error('Check Input')
 elseif nargin>3
-    for i = 1:2:nargin-2
+    for i = 1:2:nargin-2    
         
         switch varargin{i}
             
@@ -66,13 +62,13 @@ for i = 1:length(fl)
     batchdisp(fl{i},'computing co-contraction');
     
     if method_exists&&events_exists
-        data = cocontraction_data_test(data,pairs,sides,method,evts);
+        data = cocontraction_data_test(data,pairs,method,evts);
     elseif method_exists
-        data = cocontraction_data_test(data,pairs,sides,method);
+        data = cocontraction_data_test(data,pairs,method);
     elseif events_exists
-        data = cocontraction_data_test(data,pairs,sides,evts);
+        data = cocontraction_data_test(data,pairs,evts);
     else
-        data = cocontraction_data_test(data,pairs,sides);
+        data = cocontraction_data_test(data,pairs);
     end
     
     zsave(fl{i},data);
