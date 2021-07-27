@@ -21,7 +21,9 @@ function bmech_cocontraction_test(fld,pairs,varargin)
 %
 % NOTES
 % - See cocontraction_line for co-contraction computational approach
-%
+%  Example:
+%  bmech_cocontraction_test(fld,{'L_Tib_Ant-L_Gast','L_Rect-L_Hams'},'method', 'Lo2017', 'events', {'LFS1','LFS2'})
+
 % See also cocontraction_data, cocontraction_line
 
 % Batch process
