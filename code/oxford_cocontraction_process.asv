@@ -106,6 +106,23 @@ bmech_addevent(fld, 'SACR_x','LFS', 'LFS');
 bmech_addevent(fld, 'SACR_x','LFO', 'LFO'); 
 bmech_addevent(fld, 'SACR_x','RFO', 'RFO');
 
+%% extract events
+
+mode = 'manual';
+if strfind(mode,'manual')
+    fld = uigetfolder('select ''9-addevent''');
+end
+
+[cons,subjects] = extract_filestruct(fld);
+[subjects1] = extract_filestruct([fld '\' cons{1}]);
+[subjects2] = extract_filestruct([fld '\' cons{2}]);
+
+ch= 'SACR_x';
+evt= 'LFS'; 
+
+r.(cons{1})=extractevents_2(fld,cons(1,1),subjects1,ch,evt); % CP
+r.(cons{2})=extractevents_2(fld,cons(2,1),subjects2,ch,evt); % TD
+
 %% step-10 resample Video channels 
 mode = 'manual';
 if strfind(mode,'manual')
@@ -154,11 +171,10 @@ bmech_normalize(fld);
 %% step-13 plot data
 % use ensembler to graph dynamic normaliaed signals
 % remove outliers manually: CP: C1313A06,C1500A07,C1270A04,C139A14,
-% C1320A07,C1499A13,C1270A06,C1313A09, C1495A15,
-% C1314A10,C1423A40,C1268A16,C1424A33,C1268A12,C1268A14,C1423A13,C1424A30,C1500A09,C1270A08,C1270A09
-
+% C1320A07,C1499A13,C1270A06,C1313A09, C1495A15,C1314A10,C1423A40,C1268A16,C1424A33,C1268A12,C1268A14,C1423A13,C1500A09,C1270A08,C1270A09,C1314A02,C1313A07
 % TD: HC059A,HC028A09,HC028A06,HC020A14,HC135A04,HC128A06,HC018A05,HC136A06,HC047A18,HC135A06,HC047A12,HC138A05,HC045A18,
-% HC137A09,HC138A04,HC139A04,HC041A08, HC045A22,HC014A02
+% HC137A09,HC138A04,HC139A04,HC041A08,
+% HC045A22,HC014A02,HC028A04,HC141A36,HC141A34,HC135A08,HC047A15,HC018A02,HC032A04,HC138A08,HC016A12
 % check all normalized signals and remove zeros
 % becuase it is possible that signals were normalized to the wrong signal 
 % dynamic normalization and following steps should be repeated again after 
@@ -171,24 +187,10 @@ mode = 'manual';
 if strfind(mode,'manual')
     fld = uigetfolder('select ''7-cocontraction''');
 end
-pairs={'RF_Ham','GM_TibAnt'};
-bmech_cocontraction_test(fld,pairs,{'L'},'Lo2017');
+pairs={'L_Hams_Rect'};
+bmech_cocontraction_test(fld,pairs);
 
-% 2)stance
-mode = 'manual';
-if strfind(mode,'manual')
-    fld = uigetfolder('select ''7-cocontraction''');
-end
-pairs={'RF_Ham','GM_TibAnt'};
-bmech_cocontraction_test(fld,pairs,{'L'},'Lo2017');
-
-% 3)swing
-mode = 'manual';
-if strfind(mode,'manual')
-    fld = uigetfolder('select ''7-cocontraction''');
-end
-pairs={'RF_Ham','GM_TibAnt'};
-bmech_cocontraction_test(fld,pairs,{'L'},'Lo2017');
+% ,'L_Gast_Tib_Ant'
 
 %% step-19: compare Anthro
 

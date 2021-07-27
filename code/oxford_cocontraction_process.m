@@ -106,6 +106,71 @@ bmech_addevent(fld, 'SACR_x','LFS', 'LFS');
 bmech_addevent(fld, 'SACR_x','LFO', 'LFO'); 
 bmech_addevent(fld, 'SACR_x','RFO', 'RFO');
 
+%% step 9-1 extract events
+% LFS1
+mode = 'manual';
+if strfind(mode,'manual')
+    fld = uigetfolder('select ''9-addevent''');
+end
+
+[cons,subjects] = extract_filestruct(fld);
+[subjects1] = extract_filestruct([fld '\' cons{1}]);
+[subjects2] = extract_filestruct([fld '\' cons{2}]);
+
+ch= 'SACR_x';
+evt= 'LFS1'; 
+
+r.(cons{1})=extractevents_2(fld,cons(1,1),subjects1,ch,evt); % CP
+r.(cons{2})=extractevents_2(fld,cons(2,1),subjects2,ch,evt); % TD
+% LFO1
+mode = 'manual';
+if strfind(mode,'manual')
+    fld = uigetfolder('select ''9-addevent''');
+end
+
+[cons,subjects] = extract_filestruct(fld);
+[subjects1] = extract_filestruct([fld '\' cons{1}]);
+[subjects2] = extract_filestruct([fld '\' cons{2}]);
+
+ch= 'SACR_x';
+evt= 'LFO1'; 
+
+r.(cons{1})=extractevents_2(fld,cons(1,1),subjects1,ch,evt); % CP
+r.(cons{2})=extractevents_2(fld,cons(2,1),subjects2,ch,evt); % TD
+
+% LFS2 
+mode = 'manual';
+if strfind(mode,'manual')
+    fld = uigetfolder('select ''9-addevent''');
+end
+
+[cons,subjects] = extract_filestruct(fld);
+[subjects1] = extract_filestruct([fld '\' cons{1}]);
+[subjects2] = extract_filestruct([fld '\' cons{2}]);
+
+ch= 'SACR_x';
+evt= 'LFS2'; 
+
+r.(cons{1})=extractevents_2(fld,cons(1,1),subjects1,ch,evt); % CP
+r.(cons{2})=extractevents_2(fld,cons(2,1),subjects2,ch,evt); % TD
+
+% LFO2 
+mode = 'manual';
+if strfind(mode,'manual')
+    fld = uigetfolder('select ''9-addevent''');
+end
+
+[cons,subjects] = extract_filestruct(fld);
+[subjects1] = extract_filestruct([fld '\' cons{1}]);
+[subjects2] = extract_filestruct([fld '\' cons{2}]);
+
+ch= 'SACR_x';
+evt= 'LFO2'; 
+
+r.(cons{1})=extractevents_2(fld,cons(1,1),subjects1,ch,evt); % CP
+r.(cons{2})=extractevents_2(fld,cons(2,1),subjects2,ch,evt); % TD
+
+
 %% step-10 resample Video channels 
 mode = 'manual';
 if strfind(mode,'manual')
@@ -170,24 +235,24 @@ mode = 'manual';
 if strfind(mode,'manual')
     fld = uigetfolder('select ''7-cocontraction''');
 end
-pairs={'RF_Ham','GM_TibAnt'};
-bmech_cocontraction_test(fld,pairs,{'L'},'Lo2017');
+pairs={'L_Rect-L_Hams','L_Tib_Ant-L_Gast'};
+bmech_cocontraction_test(fld,pairs,'method','Lo2017','events',{'LFS1','LFS2'});
 
-% 2)stance
+% 1)stance
 mode = 'manual';
 if strfind(mode,'manual')
     fld = uigetfolder('select ''7-cocontraction''');
 end
-pairs={'RF_Ham','GM_TibAnt'};
-bmech_cocontraction_test(fld,pairs,{'L'},'Lo2017');
+pairs={'L_Rect-L_Hams','L_Tib_Ant-L_Gast'};
+bmech_cocontraction_test(fld,pairs,'method','Lo2017','events',{'LFS1','LFO1'});
 
-% 3)swing
+% 1)swing
 mode = 'manual';
 if strfind(mode,'manual')
     fld = uigetfolder('select ''7-cocontraction''');
 end
-pairs={'RF_Ham','GM_TibAnt'};
-bmech_cocontraction_test(fld,pairs,{'L'},'Lo2017');
+pairs={'L_Rect-L_Hams','L_Tib_Ant-L_Gast'};
+bmech_cocontraction_test(fld,pairs,'method','Lo2017','events',{'LFO1','LFS2'});
 
 %% step-19: compare Anthro
 
