@@ -16,6 +16,7 @@ function r = extractevents_2(fld,cons,subjects,ch,evt)
 %
 % Updated November 2017 by Philippe C. Dixon
 % - improved output display
+% updated to check negative values for MCo
 
 if ~iscell(cons)
     cons = {cons};
