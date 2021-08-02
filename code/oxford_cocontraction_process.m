@@ -79,6 +79,7 @@ end
 bmech_explode(fld);
 
 %%  step-8 add kinematic gait event
+% add LFS event
 mode = 'manual';
 if strfind(mode,'manual')
     fld = uigetfolder('select ''8-addevent''');
@@ -106,7 +107,7 @@ evtn2 = 'LFS2';          % end name
 bmech_partition(fld,evtn1,evtn2); 
 
 %% step_11 remove events
-% remove all other previous events added and keep LFS1 and LFS2
+% remove all other previous events added and just keep LFS1 and LFS2
 mode = 'manual';
 if strfind(mode,'manual')
     fld = uigetfolder('select ''11-remove-gait-events''');
@@ -137,10 +138,10 @@ bmech_normalize(fld);
 % use ensembler to graph dynamic normalized signals
 % remove outliers manually:
 %cp:C1313A06,C1500A07,C11393A14,C1320A07,C1268A12,,C1424A30,C1314A10,C1500A09,
-%C11313A09,C1495A15,,C1314A02
+%C11313A09,C1495A15,,C1314A02,C11270A04,C1268A16
 
 %TD:%HC028A,HC047A18,HC047A15,HC135A06,HC045A22,HC141A36,HC141A34,HC128A06,HC138A05,HC047A12,
-%HC045A18,,HC032A04,HC034A07 ,HC020A14,HC135A08
+%HC045A18,,HC032A04,HC034A07 ,HC020A14,HC135A08,HC141A06,HC025A06,HC136A10,HC025A09
 
 % after that check all normalized signals and remove zeros
 % becuase it is possible that signals were normalized to the wrong signal 
@@ -276,4 +277,17 @@ mode = 'full';
 
  [P,t,df,e] = omni_ttest(data1,data2,type,alpha,thresh,tail);
  
- 
+%%
+mode = 'manual';
+if strfind(mode,'manual')
+    fld = uigetfolder('select ''9-cocontraction''');
+end
+fl = engine('path',fld,'extension','zoo');
+evt1='LFS1';
+evt2='LFO1';
+ch= {'L_Rect_L_Hams_Lo2017','L_Tib_Ant_L_Gast_Lo2017'};
+    for i = 1:length(fl)
+        data = zload(fl{i});
+        partition_data(data,evt1,evt2,ch);
+           
+    end
