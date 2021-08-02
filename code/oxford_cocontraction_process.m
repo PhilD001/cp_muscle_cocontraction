@@ -151,6 +151,19 @@ bmech_normalize(fld);
 
 % CP(n=12) , TD (n=25)
 
+%% step-15 remove under 5 years old
+mode = 'manual';
+if strfind(mode,'manual')
+    fld = uigetfolder('select ''9-cocontraction''');
+end
+
+% a) Extract Age,Sex & GMFCS   
+turninggait_sub_char(fld,'_trials');
+% b) remove under 5 years old subjects
+bmech_remove_by_anthro(fld,'Age',5,'<=');
+
+% CP(n=12), TD (n=24)
+
 %% step-14 compute muscle co-contraction
 
 % 1)stride
@@ -177,17 +190,10 @@ end
 pairs={'L_Rect-L_Hams','L_Tib_Ant-L_Gast'};
 bmech_cocontraction_test(fld,pairs,'method','Lo2017','events',{'LFO1','LFS2'});
 
-%% step-15 extract Anthro info
-mode = 'manual';
-if strfind(mode,'manual')
-    fld = uigetfolder('select ''9-cocontraction''');
-end
 
-% b) Extract Age,Sex & GMFCS   
-turninggait_sub_char(fld,'_trials');
 
 %% step-15: compare Anthro of CP/TD
-% every Abthro should be run seperately
+% every Anthro should be run seperately
 mode = 'manual';
 if strfind(mode,'manual')
     fld = uigetfolder('select ''9-cocontraction''');
@@ -277,17 +283,3 @@ mode = 'full';
 
  [P,t,df,e] = omni_ttest(data1,data2,type,alpha,thresh,tail);
  
-%%
-mode = 'manual';
-if strfind(mode,'manual')
-    fld = uigetfolder('select ''9-cocontraction''');
-end
-fl = engine('path',fld,'extension','zoo');
-evt1='LFS1';
-evt2='LFO1';
-ch= {'L_Rect_L_Hams_Lo2017','L_Tib_Ant_L_Gast_Lo2017'};
-    for i = 1:length(fl)
-        data = zload(fl{i});
-        partition_data(data,evt1,evt2,ch);
-           
-    end
