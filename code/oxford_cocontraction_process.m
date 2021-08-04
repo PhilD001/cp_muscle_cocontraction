@@ -1,22 +1,50 @@
-%%  Step-1 Convert to the Zoo format
-mode = 'manual';
-if strfind(mode,'manual')
-    fld = uigetfolder('select ''1-c3d2zoo''');
+%% 
+
+% 
+%
+% NOTES
+% - tested using v 1.8.1 of the biomechZoo toolbox
+
+
+%% STEP-0: Set defaults 
+%
+% - copy raw c3d files to new processed folder
+
+% initial path to raw c3d data folder -------------------------------------------------------
+fld_raw = uigetfolder;
+
+% create copy of data for processing ------------------------------------------------
+indx = strfind(fld_raw, filesep);
+fld = [fld_raw(1:indx(end)), filesep, 'processed'];
+
+if exist(fld, 'dir')
+    disp('function previously run...overwritting previous run')
+    rmdir(fld, 's')
 end
-%  del='yes';
-c3d2zoo(fld,'yes');
+
+mkdir(fld);
+copyfile(fld_raw,fld)
+
+
+%%  Step-1 Convert to the Zoo format
+
+del='yes';
+c3d2zoo(fld,del);
+
+%% Step-2 Add information for csv files
+turninggait_sub_char(fld,'CP_trials');
+turninggait_sub_char(fld,'TD_trials');
+
 %% step-2 organize subjects
 % remove all conditions except straight
 % remove subjects with No Emg leg
 % remove TD subject with R Emg leg
 % CP(n=12) , TD(n=27)
 
+
 %% STEP-3 clean channels
 % remove channels that are not important for this project
-mode = 'manual';
-if strfind(mode,'manual')
-    fld = uigetfolder('select ''3-clean-channels''');
-end
+
 ch={'L_Spare','R_Spare','L_Tib_Post','R_Tib_Post','LAnklePower','RAnklePower','LKneePower','RKneePower','LHipPower',...
     'RHipPower','LWaistPower','RWaistPower','LAnkleForce','RAnkleForce',...
     'LKneeForce', 'RKneeForce','LHipForce','RHipForce','LWaistForce',...
@@ -35,10 +63,6 @@ bmech_removechannel(fld,ch,'remove');
 
  %% step-4 remove files with missing channels
 
-mode = 'manual';
-if strfind(mode,'manual')
-    fld = uigetfolder('select ''4-remove-files''');
-end
 
 % chns  ... cell array of strings. Channels to check
 % muscles: rectus femoris, semitendinosus, lateral gastrocnemius and tibialis anterior
@@ -51,19 +75,11 @@ bmech_remove_files_missing_channels(fld, chns);  % 1 files deleted
 % removerd files for TD: subjects: HC059A
 % removed trials for CP: trials: C1268A03.zoo,C1268A15.zoo,C1318A03.zoo,C1500A14.zoo
 % TD(n=26), CP (n=12)
- mode = 'manual';
-if strfind(mode,'manual')
-    fld = uigetfolder('select''5-process-emg''');
-end
 
 ch={'L_Rect';'R_Rect';'L_Hams';'R_Hams';'L_Gast';'R_Gast';'L_Tib_Ant';'R_Tib_Ant'};
 bmech_emgprocess_test(fld,ch,450);
 
 %% step-6 dynamic Normalize
-mode = 'manual';
-if strfind(mode,'manual')
-    fld = uigetfolder('select ''6-dynamic-normalize''');
-end
 ch={'L_Rect';'R_Rect';'L_Hams';'R_Hams';'L_Gast';'R_Gast';'L_Tib_Ant';'R_Tib_Ant'};
 before_str= '';
 after_str={'A'};
@@ -72,35 +88,20 @@ bmech_dynamic_normalization_test(fld,ch,before_str,after_str);
 
 %% step-7 explode data
 
-mode = 'manual';
-if strfind(mode,'manual')
-    fld = uigetfolder('select ''7-explode''');
-end
 bmech_explode(fld);
 
 %%  step-8 add kinematic gait event
 % add LFS event
-mode = 'manual';
-if strfind(mode,'manual')
-    fld = uigetfolder('select ''8-addevent''');
-end
 
 bmech_addevent(fld, 'SACR_x','LFS', 'LFS'); 
 
 
 %% step-9 resample Video channels 
-mode = 'manual';
-if strfind(mode,'manual')
-    fld = uigetfolder('select ''9-resample''');
-end
+
 bmech_resample(fld,'Video') %removing: HC039A18.zoo, HC041A09.zoo
 
 %% step-10 Partition 
 
-mode = 'manual';
-if strfind(mode,'manual')
-    fld = uigetfolder('select ''10-partition''');
-end
 % 1)entire gait cycle
 evtn1 = 'LFS1';          % start name
 evtn2 = 'LFS2';          % end name
@@ -108,10 +109,7 @@ bmech_partition(fld,evtn1,evtn2);
 
 %% step_11 remove events
 % remove all other previous events added and just keep LFS1 and LFS2
-mode = 'manual';
-if strfind(mode,'manual')
-    fld = uigetfolder('select ''11-remove-gait-events''');
-end
+
 evt={'Left_FootStrike1','Left_FootStrike2','Left_FootStrike3','Left_FootStrike4','Right_FootStrike1'...
     'Right_FootStrike2', 'Right_FootStrike3','Left_FootOff1','Left_FootOff2','Left_FootOff3'...
     'Right_FootOff1','Right_FootOff2','Right_FootOff3','Right_FootOff4','LFS3','LFO1','LFO2','LFO3'};
@@ -119,19 +117,12 @@ bmech_removeevent(fld,evt)
 
 %% step-12 add event LFO
 % add LFO event
-mode = 'manual';
-if strfind(mode,'manual')
-    fld = uigetfolder('select ''12-addevent-LFO''');
-end
+
 
 bmech_addevent(fld, 'SACR_x','LFO','LFO'); 
 
 %% step-13 time_normalize
 
-mode = 'manual';
-if strfind(mode,'manual')
-    fld = uigetfolder('select ''13-time-normalize''');
-end
 bmech_normalize(fld);
 
 %% step-14 plot data
@@ -150,12 +141,8 @@ bmech_normalize(fld);
 % to 13 then continue with step 14
 
 % CP(n=12) , TD (n=25)
-
+delfile
 %% step-15 remove under 5 years old
-mode = 'manual';
-if strfind(mode,'manual')
-    fld = uigetfolder('select ''9-cocontraction''');
-end
 
 % a) Extract Age,Sex & GMFCS   
 turninggait_sub_char(fld,'_trials');
@@ -167,26 +154,14 @@ bmech_remove_by_anthro(fld,'Age',5,'<=');
 %% step-14 compute muscle co-contraction
 
 % 1)stride
-mode = 'manual';
-if strfind(mode,'manual')
-    fld = uigetfolder('select ''9-cocontraction''');
-end
 pairs={'L_Rect-L_Hams','L_Tib_Ant-L_Gast'};
 bmech_cocontraction_test(fld,pairs,'method','Lo2017','events',{'LFS1','LFS2'});
 %-------------------------------------------------------------------------------
 % 2)stance
-mode = 'manual';
-if strfind(mode,'manual')
-    fld = uigetfolder('select ''9-cocontraction''');
-end
 pairs={'L_Rect-L_Hams','L_Tib_Ant-L_Gast'};
 bmech_cocontraction_test(fld,pairs,'method','Lo2017','events',{'LFS1','LFO1'});
 %------------------------------------------------------------------------------
 % 3)swing
-mode = 'manual';
-if strfind(mode,'manual')
-    fld = uigetfolder('select ''9-cocontraction''');
-end
 pairs={'L_Rect-L_Hams','L_Tib_Ant-L_Gast'};
 bmech_cocontraction_test(fld,pairs,'method','Lo2017','events',{'LFO1','LFS2'});
 
@@ -194,10 +169,7 @@ bmech_cocontraction_test(fld,pairs,'method','Lo2017','events',{'LFO1','LFS2'});
 
 %% step-15: compare Anthro of CP/TD
 % every Anthro should be run seperately
-mode = 'manual';
-if strfind(mode,'manual')
-    fld = uigetfolder('select ''9-cocontraction''');
-end
+
 type = 'unpaired';
 alpha = 0.05;
 thresh = 0.05;
