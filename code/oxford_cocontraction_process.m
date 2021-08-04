@@ -35,11 +35,17 @@ c3d2zoo(fld,del);
 turninggait_sub_char(fld,'CP_trials');
 turninggait_sub_char(fld,'TD_trials');
 
-%% step-2 organize subjects
+%% step-3 organize subjects
 % remove all conditions except straight
 % remove subjects with No Emg leg
 % remove TD subject with R Emg leg
 % CP(n=12) , TD(n=27)
+bmech_remove_by_anthro(fld,'Age',5,'<=');     % remove children younger than 5 years
+bmech_remove_by_anthro(fld,'EMG_L',0,'=');    % remove all files with EMG_L missing
+bmech_removebydescription(fld, 'static');     % remove static trials
+bmech_removebydescription(fld, 'Left Turn');
+bmech_removebydescription(fld, 'Right Turn');
+
 
 
 %% STEP-3 clean channels
@@ -76,15 +82,15 @@ bmech_remove_files_missing_channels(fld, chns);  % 1 files deleted
 % removed trials for CP: trials: C1268A03.zoo,C1268A15.zoo,C1318A03.zoo,C1500A14.zoo
 % TD(n=26), CP (n=12)
 
-ch={'L_Rect';'R_Rect';'L_Hams';'R_Hams';'L_Gast';'R_Gast';'L_Tib_Ant';'R_Tib_Ant'};
+ch={'L_Rect';'L_Hams';'L_Gast';'L_Tib_Ant'};
 bmech_emgprocess_test(fld,ch,450);
 
 %% step-6 dynamic Normalize
-ch={'L_Rect';'R_Rect';'L_Hams';'R_Hams';'L_Gast';'R_Gast';'L_Tib_Ant';'R_Tib_Ant'};
+ch={'L_Rect';'L_Hams';'L_Gast';'L_Tib_Ant'};
 before_str= '';
 after_str={'A'};
 
-bmech_dynamic_normalization_test(fld,ch,before_str,after_str);
+bmech_dynamic_normalization_test(fld,ch,before_str,after_str); % PhilD: this crashed for me
 
 %% step-7 explode data
 
@@ -142,14 +148,7 @@ bmech_normalize(fld);
 
 % CP(n=12) , TD (n=25)
 delfile
-%% step-15 remove under 5 years old
-
-% a) Extract Age,Sex & GMFCS   
-turninggait_sub_char(fld,'_trials');
-% b) remove under 5 years old subjects
-bmech_remove_by_anthro(fld,'Age',5,'<=');
-
-% CP(n=12), TD (n=24)
+outliers = {''}; % PhilD : make a list of outlier files then use delfiles to remove
 
 %% step-14 compute muscle co-contraction
 
