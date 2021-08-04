@@ -30,12 +30,18 @@ cd(fld)
 
 for i = 1:length(subjects)
     fl = engine('fld',fld,'extension','zoo', 'search path', subjects{i});
-       data = zload(fl{1});
-       r = data.zoosystem.Anthro.(anthro);
+    data = zload(fl{1});
+    if isfield(data.zoosystem.Anthro, anthro)
+        r = data.zoosystem.Anthro.(anthro);
+    elseif isfield(data.zoosystem.Header, anthro)
+        r = data.zoosystem.Header.(anthro);
+    else
+        error(['anthro parameter ', anthro, ' not found'])
+    end
     if strcmp(condition,'>=')
         if r >= value
-           disp(['removing subject ', subjects{i},' because ', anthro, ' is ',condition, num2str(value)])
-           bmech_removefolder(fld,subjects{i});
+            disp(['removing subject ', subjects{i},' because ', anthro, ' is ',condition, num2str(value)])
+            bmech_removefolder(fld,subjects{i});
         end
     end
     
@@ -63,6 +69,6 @@ for i = 1:length(subjects)
             bmech_removefolder(fld,subjects{i})
         end
     end
-      end
+end
 
 

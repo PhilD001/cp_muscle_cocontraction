@@ -100,7 +100,7 @@ end
 
 
 for i=1:length(fl)
-%     batchdisplay(fl{i},'getting anthro')
+    batchdisp(fl{i},'getting anthro')
     data = zload(fl{i});
     
     data = add_anthro(data,fl{i},raw);
@@ -172,9 +172,30 @@ DorsiR = raw(indx,DorsiRindx);
 DorsiL = raw(indx,DorsiLindx);
 
 
+% add EMG information 
+if strcmpi(EMG{1}, 'n/a') || strcmpi(EMG{1}, 'no')
+    EMG_R = 0;
+    EMG_L = 0;
+elseif strcmpi(EMG{1}, 'both')
+    EMG_R = 1;
+    EMG_L = 1;
+elseif strcmpi(EMG{1}, 'r')
+    EMG_R = 1;
+    EMG_L = 0;
+elseif strcmpi(EMG{1}, 'l')
+    EMG_R = 0;
+    EMG_L = 1;
+elseif strcmp(subject, 'HC137A')  % there is an error in the sheet
+    EMG_R = 1;
+    EMG_L = 1;
+else
+    error('unknown EMG leg')
+end
 
-
-
+% add trial specific information
+[~, trial] = fileparts(fl);
+trial_line = find(ismember(raw(:, 2), trial)==1);
+description = raw(trial_line, 3);
 
 % Add to zoosystem
 %
@@ -185,11 +206,13 @@ data.zoosystem.Anthro.MBreakR = MBreakR{1};
 data.zoosystem.Anthro.MBreakL = MBreakL{1};
 data.zoosystem.Anthro.DorsiR = DorsiR{1};
 data.zoosystem.Anthro.DorsiL = DorsiL{1};
+data.zoosystem.Anthro.EMG_R = EMG_R;
+data.zoosystem.Anthro.EMG_L = EMG_L;
 
 data.zoosystem.Header.EMG_Leg = EMG{1};
 
 
-
+data.zoosystem.Header.Description = description{1};
 
 
 
