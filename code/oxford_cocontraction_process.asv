@@ -275,7 +275,6 @@ evtn2 = 'LFS2';          % end name
 bmech_partition(fld11,evtn1,evtn2); 
 
 %% step_12 remove events
-
 % remove all other previous events added and just keep LFS1 and LFS2
 fld11= uigetfolder;
 
@@ -619,12 +618,6 @@ group_comparison(fld24,group,anthro,ch,type,alpha,thresh,tail,mode,bonf)
 
 %a) muscle pair: L_Rect-L_Hams
 %a-1)extract events    
-
-% sahar: I had this Warning (for the first part only): 
-% P is greater than the % largest tabulated value,% returning 0.5. 
-% > In lillietest (line 207)
-%   In omni_ttest (line 134)    
-
 mode = 'manual';
 if strfind(mode,'manual')
     fld = uigetfolder('select ''24-cocontraction''');
@@ -651,15 +644,13 @@ mode = 'full';
 
  [P,t,df,e] = omni_ttest(data1,data2,type,alpha,thresh,tail);
  
- 
 %-----------------------------------------------------------------------
 
 %a) L_Tib_Ant_L_Gast
-%a-1)extract events  
-
+%a-1)extract events     % just for stride
 mode = 'manual';
 if strfind(mode,'manual')
-    fld = uigetfolder('select ''24-cocontraction''');
+    fld = uigetfolder('select ''9-cocontraction''');
 end
 
 [cons,subjects] = extract_filestruct(fld);
