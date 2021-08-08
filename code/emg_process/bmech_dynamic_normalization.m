@@ -1,4 +1,4 @@
-function bmech_dynamic_normalization_test(fld,ch,before_str,after_str)
+function bmech_dynamic_normalization(fld,ch,before_str,after_str)
 
 % BMECH_EMG_DYNAMIC_NORMALIZATION(fld,ch before_str,after_str) will perform nonmalize filtereld EMG signals
 %  1-  est. local max events for all channel (*_rect_RMS)

@@ -42,59 +42,14 @@ if ~isempty(file)
     raw = struct;
     s = filesep;
     indx =strfind(fld,s);
-    root = fld(1:indx(end-1));
+    root = fld(1:indx(end));
     
-    files = engine('path',root,'extension','csv','search file','_trials');
-
-    for i = 1:length(files)
-        [~,pre] = fileparts(files{i});
-        pre = strrep(pre,'_trials','');
-        raw.(pre) = readtext(files{i});
-    end
-        
-  
-    
+    files = engine('path',root,'extension','csv','search file',file);
+    [~,pre] = fileparts(files{1});
+    pre = strrep(pre,'_trials','');
+    raw.(pre) = readtext(files{1});
 else
-    
-    if isin(fld,'CP Children')
-        kroot = 'CP';
-    else
-        kroot = 'TD';
-    end
-    
-    if isempty(file)
-        
-        disp(['1st attempt to locate excel file containing ',kroot,' Children data set...'])
-        
-        indx =strfind(fld,s);
-        root = fld(1:indx(end-1));
-        file = [root,kroot,'_trials.csv'];
-        
-        if ~exist(file,'file')  % search again
-            
-            disp(['2nd attempt to locate excel file containing ',kroot,' Children data set...'])
-            
-            root = fld(1:indx(end-2));
-            file = [root,kroot,'_trials.csv'];
-            
-            if ~exist(file,'file')
-                
-                disp('cannot find automatically, prompting user')
-                
-                
-                [f,p] = uigetfile('*.csv');
-                file = [p,f];
-            end
-            
-        else
-            disp('file located successfully')
-            
-        end
-        
-    end
-    
-    raw = readtext(file);
-    
+   error(['cannot find file ', file, '.csv in data path'])
 end
 
 
@@ -102,9 +57,7 @@ end
 for i=1:length(fl)
     batchdisp(fl{i},'getting anthro')
     data = zload(fl{i});
-    
     data = add_anthro(data,fl{i},raw);
-    
     save(fl{i},'data');
 end
 
