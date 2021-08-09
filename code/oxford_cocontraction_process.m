@@ -27,7 +27,7 @@ copyfile(fld_raw,fld)
 fld_stats = [fld_root, 'Statistics'];
 if exist(fld_stats, 'dir')
     disp('removing old processed data folder...')
-    rmdir(fld, 's')
+    rmdir(fld_stats, 's')
 end
 
 % create empty folder for statistics 
@@ -99,35 +99,29 @@ bmech_emgprocess(fld,ch,450);
 %% step-7 dynamic Normalize
 
 % run function for dynamic normalization
-ch={'L_Rect';'L_Hams';'L_Gast';'L_Tib_Ant'};
+ch={'L_Rect_filthigh_filtlow_rect_RMS','L_Hams_filthigh_filtlow_rect_RMS',...
+    'L_Gast_filthigh_filtlow_rect_RMS','L_Tib_Ant_filthigh_filtlow_rect_RMS'};
 before_str= '';
 after_str={'A'};
 
-bmech_dynamic_normalization(fld,ch,before_str,after_str); % PhilD: this crashed for me % Sahar : it was OK for me
+bmech_emg_dynamic_normalization(fld,ch,before_str,after_str); % PhilD: this crashed for me % Sahar : it was OK for me
 
 %% step-8 explode data
-
-% b)run function to explode data
+% - required for addevent
 bmech_explode(fld);
 
 %%  step-9 add kinematic gait event
-
-
-% b) add LFS event
-
+% - add LFS event
 bmech_addevent(fld, 'SACR_x','LFS', 'LFS'); 
 
 %% step-10 resample Video channels 
-
-
-% b) run function to resample
-
+%
+% PD why do these two files fail ? HC039A18.zoo, HC041A09.zoo
+delfile('HC039A18.zoo')
+delfile('HC041A09.zoo')
 bmech_resample(fld,'Video') % should befor runnig: HC039A18.zoo, HC041A09.zoo
 
-%% step-11 Partition 
-
-
-% b) partition to the entire gait cycle
+%% step-11 Partition to a single gait cycle
 evtn1 = 'LFS1';          % start name
 evtn2 = 'LFS2';          % end name
 bmech_partition(fld,evtn1,evtn2); 
@@ -136,22 +130,24 @@ bmech_partition(fld,evtn1,evtn2);
 
 % remove all other previous events added and just keep LFS1 and LFS2
 
-% remove unnecessary gait events
+% remove unnecessary gait eventsi
+
+% Phild : This step seems unecessary
 
 evt={'Left_FootStrike1','Left_FootStrike2','Left_FootStrike3','Left_FootStrike4','Right_FootStrike1'...
     'Right_FootStrike2', 'Right_FootStrike3','Left_FootOff1','Left_FootOff2','Left_FootOff3'...
     'Right_FootOff1','Right_FootOff2','Right_FootOff3','Right_FootOff4','LFS3','LFO1','LFO2','LFO3'};
 
-bmech_removeevent(fld12,evt)
+bmech_removeevent(fld,evt)
 
 %% step-13 add event LFO
 
-bmech_addevent(fld13, 'SACR_x','LFO','LFO'); 
+bmech_addevent(fld, 'SACR_x','LFO','LFO'); 
 
-%% step-14 time_normalize
+%% step-14 time_normalize to 100% of the gait cycle
 
 %  function for time normalizetion
-bmech_normalize(fld14);
+bmech_normalize(fld);
 
 %% step-15 plot data
 % use ensembler to graph dynamic normalized signals
@@ -190,77 +186,38 @@ end
 %% step-16 dynamic Normalize 
 
 % run function for dynamic normalization
-ch={'L_Rect';'L_Hams';'L_Gast';'L_Tib_Ant'};
+ch={'L_Rect_filthigh_filtlow_rect_RMS','L_Hams_filthigh_filtlow_rect_RMS',...
+    'L_Gast_filthigh_filtlow_rect_RMS','L_Tib_Ant_filthigh_filtlow_rect_RMS'};
 before_str= '';
 after_str={'A'};
 
-bmech_dynamic_normalization_test(fld,ch,before_str,after_str); % PhilD: this crashed for me % Sahar : it was OK for me
-
-%% step-17 explode data
+bmech_emg_dynamic_normalization(fld,ch,before_str,after_str); % PhilD: this crashed for me % Sahar : it was OK for me
 
 
-% run function to explode data
-bmech_explode(fld);
-
-%%  step-18 add kinematic gait event
-
-% b) add LFS event
-
-bmech_addevent(fld, 'SACR_x','LFS', 'LFS'); 
-
-%% step-19 resample Video channels 
-% run function to resample
-
-bmech_resample(fld,'Video') % should remove before runnig: HC039A18.zoo, HC041A09.zoo
-
-%% step-20 Partition 
-
-
-% partition to the entire gait cycle
-evtn1 = 'LFS1';          % start name
-evtn2 = 'LFS2';          % end name
-bmech_partition(fld,evtn1,evtn2); 
-
-%% step_21 remove events
-% remove all other previous events added and just keep LFS1 and LFS2
-
-% b) remove unnecessary gait events
-
-evt={'Left_FootStrike1','Left_FootStrike2','Left_FootStrike3','Left_FootStrike4','Right_FootStrike1'...
-    'Right_FootStrike2', 'Right_FootStrike3','Left_FootOff1','Left_FootOff2','Left_FootOff3'...
-    'Right_FootOff1','Right_FootOff2','Right_FootOff3','Right_FootOff4','LFS3','LFO1','LFO2','LFO3'};
-
-bmech_removeevent(fld,evt)
-
-%% step-22 add event LFO
-
-% add LFO even
-
-bmech_addevent(fld, 'SACR_x','LFO','LFO'); 
-
-%% step-23 time_normalize
-
-% function for time normalizetion
-
-bmech_normalize(fld);
-
-
-%% step-24 compute muscle co-contraction
-
+%% step-17 compute muscle co-contraction
 
 % function for muscle co-contraction
 
-% b-1)stride
-pairs={'L_Rect-L_Hams','L_Tib_Ant-L_Gast'};
-bmech_cocontraction_test(fld,pairs,'method','Lo2017','events',{'LFS1','LFS2'});
+% Phil D: if you find the channel names to long you can use
+% bmech_renamechannel
+
+ch_old = {'L_Rect_filthigh_filtlow_rect_RMS_normalized', 'L_Hams_filthigh_filtlow_rect_RMS_normalized',...
+          'L_Tib_Ant_filthigh_filtlow_rect_RMS_normalized', 'L_Gast_filthigh_filtlow_rect_RMS_normalized'};
+ch_new = {'L_Rect_normalized', 'L_Hams_normalized',...
+          'L_Tib_Ant_normalized', 'L_Gast_normalized'};
+bmech_renamechannel(fld, ch_old, ch_new)
+
+pairs={'L_Rect_normalized-L_Hams_normalized',...
+       'L_Tib_Ant_normalized-L_Gast_normalized'};
+
+% -1)stride
+bmech_cocontraction(fld,pairs,'method','Lo2017','events',{'LFS1','LFS2'});
 %-------------------------------------------------------------------------------
-% b-2)stance
-pairs={'L_Rect-L_Hams','L_Tib_Ant-L_Gast'};
-bmech_cocontraction_test(fld,pairs,'method','Lo2017','events',{'LFS1','LFO1'});
+% -2)stance
+bmech_cocontraction(fld,pairs,'method','Lo2017','events',{'LFS1','LFO1'});
 %------------------------------------------------------------------------------
-% b-3)swing
-pairs={'L_Rect-L_Hams','L_Tib_Ant-L_Gast'};
-bmech_cocontraction_test(fld,pairs,'method','Lo2017','events',{'LFO1','LFS2'});
+% 3)swing
+bmech_cocontraction(fld,pairs,'method','Lo2017','events',{'LFO1','LFS2'});
 
 
 %% step-25: compare Anthro of CP/TD
@@ -277,19 +234,19 @@ bonf = 1;
 anthro = {'Age'};
 group = {'CP', 'TD'};
 ch= 'zoosystem';
-group_comparison(fld24,group,anthro,ch,type,alpha,thresh,tail,mode,bonf)
+group_comparison(fld,group,anthro,ch,type,alpha,thresh,tail,mode,bonf)
  
 %  Group comparison for Bodymass (CP/TD)
 anthro = {'Bodymass'};
 group = {'CP', 'TD'};
 ch= 'zoosystem';
-group_comparison(fld24,group,anthro,ch,type,alpha,thresh,tail,mode,bonf)
+group_comparison(fld,group,anthro,ch,type,alpha,thresh,tail,mode,bonf)
 
 %  Group comparison for Height (CP/TD)
 anthro = {'Height'};
 group = {'CP','TD'};
 ch= 'zoosystem';
-group_comparison(fld24,group,anthro,ch,type,alpha,thresh,tail,mode,bonf)
+group_comparison(fld,group,anthro,ch,type,alpha,thresh,tail,mode,bonf)
 
 %% step-26 statistics
 
@@ -301,16 +258,13 @@ group_comparison(fld24,group,anthro,ch,type,alpha,thresh,tail,mode,bonf)
 % > In lillietest (line 207)
 %   In omni_ttest (line 134)    
 
-mode = 'manual';
-if strfind(mode,'manual')
-    fld = uigetfolder;
-end
+% PhilD: I didn't get a warning
 
-[cons,subjects] = extract_filestruct(fld);
-[subjects1] = extract_filestruct([fld '\' cons{1}]);
-[subjects2] = extract_filestruct([fld '\' cons{2}]);
+[cons,~] = extract_filestruct(fld);
+[subjects1] = extract_filestruct([fld, filesep, cons{1}]);
+[subjects2] = extract_filestruct([fld, filesep, cons{2}]);
 
-ch= 'L_Rect_L_Hams_Lo2017';
+ch= 'L_Rect_normalized_L_Hams_normalized_Lo2017';
 evt= 'co_contraction_value_from_LFS1_to_LFS2'; 
 
 r.(cons{1})=extractevents_3(fld,cons(1,1),subjects1,ch,evt); % CP
@@ -333,16 +287,8 @@ mode = 'full';
 %a) L_Tib_Ant_L_Gast
 %a-1)extract events  
 
-mode = 'manual';
-if strfind(mode,'manual')
-    fld = uigetfolder('select ''24-cocontraction''');
-end
 
-[cons,subjects] = extract_filestruct(fld);
-[subjects1] = extract_filestruct([fld '\' cons{1}]);
-[subjects2] = extract_filestruct([fld '\' cons{2}]);
-
-ch= 'L_Tib_Ant_L_Gast_Lo2017';
+ch= 'L_Tib_Ant_normalized_L_Gast_normalized_Lo2017';
 evt= 'co_contraction_value_from_LFS1_to_LFS2'; 
 
 r.(cons{1})=extractevents_3(fld,cons(1,1),subjects1,ch,evt); % CP
@@ -357,5 +303,5 @@ thresh = 0.05;
 tail = 'both';
 mode = 'full';
 
- [P,t,df,e] = omni_ttest(data1,data2,type,alpha,thresh,tail);
+[P,t,df,e] = omni_ttest(data1,data2,type,alpha,thresh,tail);
  

@@ -1,4 +1,4 @@
-function bmech_dynamic_normalization(fld,ch,before_str,after_str)
+function bmech_emg_dynamic_normalization(fld,ch,before_str,after_str, static_str)
 
 % BMECH_EMG_DYNAMIC_NORMALIZATION(fld,ch before_str,after_str) will perform nonmalize filtereld EMG signals
 %  1-  est. local max events for all channel (*_rect_RMS)
@@ -7,7 +7,7 @@ function bmech_dynamic_normalization(fld,ch,before_str,after_str)
 %
 % ARGUMENTS
 %  fld    ... folder to operate on
-%  ch     ... name of emg channels to process (cel array of strings)
+%  ch     ... name of emg channels to process (cell array of strings)
 %  before_str    ... string characters before subject_id
 %  after_str    ... string charaters after subject_id
 %                        Example:
@@ -15,14 +15,17 @@ function bmech_dynamic_normalization(fld,ch,before_str,after_str)
 %                        Subject ID = HYA03
 %                        before_str = ' Trimmed_'
 %                         after_str = '_Walking'
+%  static_str   ... str, name of static files (if any) to ignore
 % *** note: if Subject ID is in the begining  of the file name
 %                         before_str='';
 
-
+if nargin < 5
+    static_str = 'Cal';
+end
 cd(fld)
 % extract all non static files
 fl_all = engine('path',fld,'extension','zoo');
-fl_tmp = engine('path',fld,'extension','zoo','search file','Cal');
+fl_tmp = engine('path',fld,'extension','zoo','search file',static_str);
 fl = setdiff(fl_all,fl_tmp);
 
 % Estimating local max for each EMG channel
@@ -31,16 +34,14 @@ local_max_all_trial =struct();
 for i = 1:length(fl)
     batchdisp(fl{i},'finding local max value of emg channels')
     data = zload(fl{i});
-    
-    fl_path = split(fl{i},'\');
-    file_name =fl_path(end);
+    [~, file_name] = fileparts(fl{i});
     subject_id  = extractBetween(file_name,before_str,after_str);
     
-    if any(strcmp(fieldnames(local_max_all_trial),['sub_' subject_id{1,1}]))
-        [data,local_max_all_trial.(['sub_' subject_id{1,1}])] = max_of_data(data,ch,local_max_all_trial.(['sub_' subject_id{1,1}]));
+    if any(strcmp(fieldnames(local_max_all_trial),subject_id{1,1}))
+        [data,local_max_all_trial.(subject_id{1,1})] = max_of_data(data,ch,local_max_all_trial.(subject_id{1,1}));
     else
-        local_max_all_trial.(['sub_' subject_id{1,1}]) = struct();
-        [data,local_max_all_trial.(['sub_' subject_id{1,1}])] = max_of_data(data,ch,local_max_all_trial.(['sub_' subject_id{1,1}]));
+        local_max_all_trial.(subject_id{1,1}) = struct();
+        [data,local_max_all_trial.(subject_id{1,1})] = max_of_data(data,ch,local_max_all_trial.(subject_id{1,1}));
     end
     
     zsave(fl{i},data);
@@ -61,21 +62,19 @@ end
 % Dynamic Normalization
 for i = 1:length(fl)
     batchdisp(fl{i},'emg dynamic normailization process')
-    data2 = zload(fl{i});
-    
-    fl_path = split(fl{i},'\');
-    file_name =fl_path(end);
+    data = zload(fl{i});
+    [~, file_name] = fileparts(fl{i});
     subject_id  = extractBetween(file_name,before_str,after_str);
     
     for j = 1:length(ch)
-        local_ch_name =[ch{j} '_rect_RMS'];
-        r = data2.(local_ch_name).line;
-        max_val = global_max.(['sub_' subject_id{1,1}]).(local_ch_name);
+        local_ch_name =ch{j};
+        r = data.(local_ch_name).line;
+        max_val = global_max.(subject_id{1,1}).(local_ch_name);
         norm_r = r/ max_val;                                                                             % normalizing by global max
-        data2 = addchannel_data(data2,[ch{j},'_normalized'],norm_r,'Analog');
-        data2.(strcat(ch{j},'_normalized')).event.global_max = [1, max_val, 0];
+        data = addchannel_data(data,[ch{j},'_normalized'],norm_r,'Analog');
+        data.([ch{j},'_normalized']).event.global_max = [1, max_val, 0];
     end
-    zsave(fl{i},data2);
+    zsave(fl{i},data);
 end
 
 
@@ -84,7 +83,7 @@ function [data,max_all] = max_of_data(data,emg_ch,max_all)
 
 for i = 1:length(emg_ch)
     
-    local_ch_name = [emg_ch{i} '_rect_RMS'];
+    local_ch_name = emg_ch{i};
     r = data.(local_ch_name).line;
     local_max = max(r);
     ch_names = fieldnames(max_all);

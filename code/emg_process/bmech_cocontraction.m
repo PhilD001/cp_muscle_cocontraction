@@ -1,4 +1,4 @@
-function bmech_cocontraction_test(fld,pairs,varargin)
+function bmech_cocontraction(fld,pairs,varargin)
 
 % BMECH_COCONTRACTION computes co-contraction index for muscle pairs
 %
@@ -61,16 +61,16 @@ end
 for i = 1:length(fl)
     data = zload(fl{i});
     
-    batchdisp(fl{i},'computing co-contraction');
+    batchdisp(fl{i},['computing co-contraction using method ', method]);
     
     if method_exists&&events_exists
-        data = cocontraction_data_test(data,pairs,method,evts);
+        data = cocontraction_data(data,pairs,method,evts);
     elseif method_exists
-        data = cocontraction_data_test(data,pairs,method);
+        data = cocontraction_data(data,pairs,method);
     elseif events_exists
-        data = cocontraction_data_test(data,pairs,evts);
+        data = cocontraction_data(data,pairs,evts);
     else
-        data = cocontraction_data_test(data,pairs);
+        data = cocontraction_data(data,pairs);
     end
     
     zsave(fl{i},data);

@@ -1,4 +1,4 @@
-function data = cocontraction_data_test(data,muscle_pairs,varargin)
+function data = cocontraction_data(data,muscle_pairs,varargin)
 
 % COCONTRACTION_DATA(data,muscle_pairs) computes co-contraction indices
 %
@@ -123,22 +123,22 @@ for i = 1:length(muscle_pairs)
         error('invalid muscle(s) / muscle(s) do not exist')
     end
     
-    if ~isfield(data,[muscles{1},'_normalized'])||~isfield(data,[muscles{2},'_normalized'])
+    if ~isfield(data,muscles{1})||~isfield(data,muscles{2})
         error('EMG channel not normalized')
     end
     
     if events_exists
-        muscle1 = data.([muscles{1},'_normalized']).line;
-        muscle2 = data.([muscles{2},'_normalized']).line;
+        muscle1 = data.(muscles{1}).line;
+        muscle2 = data.(muscles{2}).line;
         
-        muscle1_prt = data_prt.([muscles{1},'_normalized']).line;
-        muscle2_prt = data_prt.([muscles{2},'_normalized']).line;
+        muscle1_prt = data_prt.(muscles{1}).line;
+        muscle2_prt = data_prt.(muscles{2}).line;
         
         ch_name = [muscles{1},'_',muscles{2}];
         
     else
-        muscle1 = data.([muscles{1},'_normalized']).line;
-        muscle2 = data.([muscles{2},'_normalized']).line;
+        muscle1 = data.(muscles{1}).line;
+        muscle2 = data.(muscles{2}).line;
         
         ch_name = [muscles{1},'_',muscles{2}];
         
@@ -147,7 +147,7 @@ for i = 1:length(muscle_pairs)
     if method_exists
         disp(['computing co-contraction for muscles ',muscles{1},' and ',muscles{2},' using ',method])
         
-        [r,r_val] = cocontraction_line_test(muscle1,muscle2,method);
+        [r,r_val] = cocontraction_line(muscle1,muscle2,method);
         
         if ~isfield(data,[ch_name '_' method])
             data = addchannel_data(data,[ch_name '_' method],r,'Analog');
@@ -158,17 +158,17 @@ for i = 1:length(muscle_pairs)
         
         if r_val~=0 &&events_exists
              disp(['from ', evts_tag])
-            [~,r_val] = cocontraction_line_test(muscle1_prt,muscle2_prt,method);
+            [~,r_val] = cocontraction_line(muscle1_prt,muscle2_prt,method);
             data.([ch_name '_' method]).event.(['co_contraction_value' '_from_' evts_tag])= [1,r_val,0];
         elseif r_val~=0
-            disp(['for entire signal'])
+            disp('for entire signal')
             data.([ch_name '_' method]).event.co_contraction_value= [1,r_val,0];
         end
         
     else
         disp(['computing co-contraction for muscles ',muscles{1},' and ',muscles{2},' using Default:Rudolph'])
-        disp(['for entire signal'])
-        r = cocontraction_line_test(muscle1,muscle2);
+        disp('for entire signal')
+        r = cocontraction_line(muscle1,muscle2);
         if ~isfield(data,[ch_name '_Rudolph'])
             data = addchannel_data(data,[ch_name '_Rudolph'],r,'Analog');
         else
@@ -181,5 +181,5 @@ for i = 1:length(muscle_pairs)
     
     
 end
-end
+
 

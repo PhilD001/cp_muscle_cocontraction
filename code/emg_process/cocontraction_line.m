@@ -1,4 +1,4 @@
-function varargout= cocontraction_line_test(muscle1,muscle2,method, plotGraph)
+function varargout= cocontraction_line(muscle1,muscle2,method, plotGraph)
 
 % varargout = MUSCLE_COCONTRACTION(muscle1,muscle2) computes co-contraction indices for
 %      muscle pairs (muscle 1 and muscle2)
@@ -109,6 +109,5 @@ if plotGraph
     plot(muscle2,'k');
     hold on
     plot(cc,'-r','LineWidth',1.5)
-end
 end
 

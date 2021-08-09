@@ -44,12 +44,18 @@ if ~isempty(file)
     indx =strfind(fld,s);
     root = fld(1:indx(end));
     
-    files = engine('path',root,'extension','csv','search file',file);
-    [~,pre] = fileparts(files{1});
-    pre = strrep(pre,'_trials','');
-    raw.(pre) = readtext(files{1});
+    files = engine('path',root,'extension','csv','search file','_trials');
+
+    for i = 1:length(files)
+        [~,pre] = fileparts(files{i});
+        pre = strrep(pre,'_trials','');
+        raw.(pre) = readtext(files{i});
+    end
+        
+  
+    
 else
-   error(['cannot find file ', file, '.csv in data path'])
+    error('no sheet found')
 end
 
 
