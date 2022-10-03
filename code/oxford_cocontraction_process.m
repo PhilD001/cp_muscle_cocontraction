@@ -2,7 +2,13 @@
 %  with cerebral palsy (CP) study 
 %
 % NOTES
-% - requires biomechZoo (tested using v 1.8.1)
+% - requires biomechZoo (tested using v 1.9.1)
+%
+% Data
+% - Two datasets are used 
+% a) Oxford dataset from PhilD Phd "raw files (05.01.15)" contain TD, CP
+% b) NJIT dataset from Saikat Pal "NJIT_CP_dataset" contains CP
+
 
 %% STEP-0: Get data and set up
 % - copies raw c3d files to new processed folder
@@ -41,6 +47,7 @@ c3d2zoo(fld,del);
 
 %% Step-2 Add information for csv files
 %
+% - needs to be updated for the NJIT data set
 turninggait_sub_char(fld,'CP_trials');  % modified from P.Dixon DPhil study code
 turninggait_sub_char(fld,'TD_trials');  % modified from P.Dixon DPhil study cod
 
@@ -51,10 +58,14 @@ turninggait_sub_char(fld,'TD_trials');  % modified from P.Dixon DPhil study cod
 % CP(n=12) , TD(n=27)
 
 bmech_remove_by_anthro(fld,'Age',5,'<=');     % remove children younger than 5 years
-bmech_remove_by_anthro(fld,'EMG_L',0,'=');    % remove all files with EMG_L missing
+bmech_remove_by_anthro(fld,'EMG_L',0,'=');    % remove all files with EMG_L missing   % KEEP ALL EMG?
 bmech_removebydescription(fld, 'static');     % remove static trials 
 bmech_removebydescription(fld, 'Left');       % remove left turn trials
 bmech_removebydescription(fld, 'Right');      % remove right turn trials
+
+%% STEP RENAME CHANNELS FROM NJIT DATA SET TO MATCH OXFORD
+% 
+
 
 %% STEP-4 clean up
 % remove channels that are not important for this project
