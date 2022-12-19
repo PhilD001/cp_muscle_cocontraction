@@ -64,7 +64,6 @@ for i = 1:length(subjects)
     disp(['removing subject ', subjects{i},' because there are no files'])
     end
 end
-%manual removal HC003B; HC023A; HC045A; *because its empty
 
 %% Step 1.5: Organize subjects
 % Removes data and conditions were are not interested in
@@ -132,28 +131,12 @@ rmdir(fld_nj); % removes the processed_nj folder
 %% Step 3.1: Clean up
 % Remove channels that are not important for this project
 
-% ch={'L_Spare','R_Spare','L_Tib_Post','R_Tib_Post','LAnklePower','RAnklePower','LKneePower','RKneePower','LHipPower',...
-%     'RHipPower','LWaistPower','RWaistPower','LAnkleForce','RAnkleForce',...
-%     'LKneeForce', 'RKneeForce','LHipForce','RHipForce','LWaistForce',...
-%     'RWaistForce','LGroundReactionMoment','RGroundReactionMoment',...
-%     'LAnkleMoment','RAnkleMoment','LKneeMoment',' RKneeMoment',...
-%     'LHipMoment','RHipMoment','LWaistMoment','RWaistMoment',...
-%     'RArchHeight', 'LArchHeight', 'CentreOfMass', 'CentreOfMassFloor', ...
-%     'LArchHeightIndex','RArchHeightIndex', 'RAbsAnkleAngle', 'LAbsAnkleAngle',...
-%     'LSpineAngles', 'RSpineAngles', 'LThoraxAngles', 'RThoraxAngles',...
-%     'LFootProgressAngles', 'RFootProgressAngles', 'RNormalisedGRF',...
-%     'LNormalisedGRF', 'RHXFFA', 'RHFTBA','RFFTBA','RFETBA',...
-%     'LHXFFA', 'LHFTBA','LFFTBA','FETBA',...
-%     'RSTLv'};
-% 
-% bmech_removechannel(fld,ch,'remove');
-
 ch_kp = {'L_Rect','R_Rect','L_Hams','R_Hams','L_Gast','R_Gast','L_Tib_Ant','R_Tib_Ant',...
         'LTOE', 'LHEE', 'RTOE', 'RHEE', 'LPSI', 'RPSI', 'SACR',...
         'RHipAngles', 'RKneeAngles', 'RAnkleAngles', ...
         'LHipAngles', 'LKneeAngles', 'LAnkleAngles'};
 
-bmech_removechannel(fld, ch, 'keep');
+bmech_removechannel(fld, ch_kp, 'keep');
 
 %% Step 3.2 Remove files with missing channels
 % Required muscles: rectus femoris, semitendinosus, lateral gastrocnemius and tibialis anterior
@@ -170,7 +153,6 @@ bmech_remove_files_missing_channels(fld, chns);
 
 ch={'L_Rect';'L_Hams';'L_Gast';'L_Tib_Ant'};
 bmech_emgprocess(fld,ch,450);
-pause
 
 %% Step 3.4 Dynamic Normalization
 % Run function for dynamic normalization
@@ -187,18 +169,12 @@ bmech_emg_dynamic_normalization(fld,ch,before_str,after_str);
 
 bmech_explode(fld);
 
-
 %% Step 3.5: Add kinematic gait event
 % Add LFS event
 
 bmech_addevent(fld, 'SACR_x','LFS', 'LFS'); 
 
 %% Step 3.6: Resample Video channels 
-% Two files are corrupt and need to be removed 
-
-% todo: check why these crash
-delfile('HC039A18.zoo')
-delfile('HC041A09.zoo')
 
 bmech_resample(fld,'Video')
 
