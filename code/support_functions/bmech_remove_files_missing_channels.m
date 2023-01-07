@@ -16,7 +16,6 @@ end
 fl = engine('fld',fld,'extension','zoo');
 n_del_files = 0;
 for i = 1:length(fl)
-    disp(' ')
     batchdisp(fl{i}, 'checking channels')
     data = zload(fl{i});
     [~, fname, ext] = fileparts(fl{i});

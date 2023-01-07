@@ -1,13 +1,18 @@
 %% MASTER CODE FOR HEALTHY/CP CO-CONTRACTION GAIT STUDY
 
 % Processing pipeline script for the analysis of muscle contraction in children
-% with and without cerebral palsy (CP) 
+% with cerebral palsy (CP) and typically developping (TD) controls 
 
-% Uses Oxford dataset (Healthy and CP) and NJIT dataset (CP)
-
+% Datasets : 
+% - Oxford CP + TD dataset: 'raw files (05.01.15)' from Phil Dixon DPhil research
+% - NJIT CP dataset: 'NJIT raw' From Saikat Pal's lab at NJIT with names modified 
+%   for compatibilty with the Oxford dataset
+%
 % NOTES:
-% Requires biomechZoo (tested using v 1.9.7)
-% Need to add biomechZoo and cp_muscle_cocontraction folders to path
+% - Requires biomechZoo repo (tested using v 1.9.7): https://github.com/PhilD001/biomechZoo
+% - This repo is stored at https://github.com/PhilD001/cp_muscle_cocontraction
+% - Path : Need to add biomechZoo and cp_muscle_cocontraction folders to path
+%  (biomechZoo in bottom of path) before running
 % 
 
 %% PART 1: Clean and prep Oxford dataset
@@ -120,11 +125,9 @@ bmech_renamechannel(fld_nj, ch_old, ch_new)
 cocontraction_add_sacr(fld_nj)
 
 %% Step 2.5: Combine NJIT and Oxford datasets into one folder
-
-cd(fld_nj)
-movefile('CP*',[fld,filesep,'CP']) % moves all NJIT subject to main processed folder
+cd(fld)
+copyfile(fld_nj, [fld, filesep, 'CP'])
 rmdir(fld_nj); % removes the processed_nj folder
-
 %% PART 3: Perform processing and analyses on full dataset
 % This involves steps 3.1 to 3.x
 
@@ -152,7 +155,9 @@ bmech_remove_files_missing_channels(fld, chns);
 %  Uses a 4th order filter
 
 ch={'L_Rect';'L_Hams';'L_Gast';'L_Tib_Ant'};
-bmech_emgprocess(fld,ch,450);
+lp_cut = 450;
+hp_cut = 20;
+bmech_emgprocess(fld, ch, lp_cut, hp_cut);
 
 %% Step 3.4 Dynamic Normalization
 % Run function for dynamic normalization
@@ -175,6 +180,7 @@ bmech_explode(fld);
 bmech_addevent(fld, 'SACR_x','LFS', 'LFS'); 
 
 %% Step 3.6: Resample Video channels 
+% - upsamples video to analog frequency to make sure the partition aligns
 
 bmech_resample(fld,'Video')
 
@@ -190,7 +196,7 @@ bmech_addevent(fld, 'SACR_x','LFO','LFO');
 
 %% Step 3.9: Delete outliers 
 
-% identified outliers
+% manually identified outliers
 files = {'C1393A11.zoo','C1393A14.zoo','C1313A07.zoo','C1313A06.zoo',...
     'HC020A07.zoo','HC016A08.zoo','HC020A07.zoo','HC036A10.zoo',...
     'HC028A29.zoo','HC028A06.zoo'};
@@ -260,19 +266,23 @@ bmech_renamechannel(fld, ch_old, ch_new)
 % Determines representative trial for each participant 
 
 ch = {'L_TA_G_cc_Norm', 'L_RF_HS_cc_Norm', 'L_TA_G_cc_NotNorm', 'L_RF_HS_cc_NotNorm'};
-bmech_reptrial(fld,ch,'RMSE');
+method = 'RMSE';
+bmech_reptrial(fld,ch,method);
 
 %% Step 3.15: Output datasheet for stats
 
-subjects = {'C1268A','C1270A','C1313A','C1314A','C1318A','C1320A','C1393A',...
-            'C1423A','C1424A','C1495A','C1499A','C1500A','CP009A','CP011A',...
-            'CP031A','CP032A','CP035A','CP037A','CP039A','CP041A','CP042A',...
-            'CP043A','CP046A','HC014A','HC016A','HC020A','HC025A','HC026A',...
-            'HC028A','HC030A','HC032A','HC034A','HC036A','HC039A','HC041A',...
-            'HC043A','HC047A','HC055A','HC059A','HC128A','HC129A','HC135A',...
-            'HC136A','HC137A','HC138A','HC139A','HC140A','HC141A','HC142A'};
+% subjects = {'C1268A','C1270A','C1313A','C1314A','C1318A','C1320A','C1393A',...
+%             'C1423A','C1424A','C1495A','C1499A','C1500A','CP009A','CP011A',...
+%             'CP031A','CP032A','CP035A','CP037A','CP039A','CP041A','CP042A',...
+%             'CP043A','CP046A','HC014A','HC016A','HC020A','HC025A','HC026A',...
+%             'HC028A','HC030A','HC032A','HC034A','HC036A','HC039A','HC041A',...
+%             'HC043A','HC047A','HC055A','HC059A','HC128A','HC129A','HC135A',...
+%             'HC136A','HC137A','HC138A','HC139A','HC140A','HC141A','HC142A'};
+
+[cons,subjects] = extract_filestruct(fld);
         
-cons = {'TD','CP'};
+        
+%cons = {'TD','CP'};
 chns = {'L_TA_G_cc_Norm', 'L_RF_HS_cc_Norm', 'L_TA_G_cc_NotNorm', 'L_RF_HS_cc_NotNorm'};
 lcl_evts = {'co_contraction_value_from_LFS1_to_LFO1'...
             'co_contraction_value_from_LFO1_to_LFS2'}; 
