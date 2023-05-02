@@ -140,12 +140,6 @@ ch_new = {'L_TA_G_cc_Norm', 'L_RF_HS_cc_Norm', 'L_TA_G_cc_NotNorm', 'L_RF_HS_cc_
   
 bmech_renamechannel(fld, ch_old, ch_new)
 
-%% Step 2.10: Determine represetative trial
-% Determines representative trial for each participant 
-
-ch = {'L_TA_G_cc_Norm', 'L_RF_HS_cc_Norm', 'L_TA_G_cc_NotNorm', 'L_RF_HS_cc_NotNorm'};
-method = 'RMSE';
-bmech_reptrial(fld,ch,method);
 
 %% PART 3: Extract data to spreadsheet
 
