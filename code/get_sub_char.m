@@ -1,4 +1,4 @@
-function turninggait_sub_char(fld,file)
+function get_sub_char(fld,file)
 
 % extracts extra information from main excel files and adds to zoosystem
 %
@@ -44,13 +44,9 @@ if ~isempty(file)
     indx =strfind(fld,s);
     root = fld(1:indx(end));
     
-    files = engine('path',root,'extension','csv','search file','_trials');
+    file = engine('path',root,'extension','csv','search file','_trials');
+    raw = readtext(file{1});
 
-    for i = 1:length(files)
-        [~,pre] = fileparts(files{i});
-        pre = strrep(pre,'_trials','');
-        raw.(pre) = readtext(files{i});
-    end
         
   
     
@@ -69,11 +65,6 @@ end
 
 
 function data = add_anthro(data,fl,raw)
-
-indx = strfind(fl,filesep);
-child = fl(indx(end-2)+1:indx(end-1)-1);
-raw = raw.(child);
-        
  
 line1 = raw(1,:);
 
@@ -101,9 +92,6 @@ s=filesep;
 indx = strfind(fl,s);
 subject = fl(indx(end-1)+1:indx(end)-1);
 
-if isin(subject,'HC22A')
-    subject = 'HC022A';
-end
 
 subjects = raw(:,Subindx);
 
